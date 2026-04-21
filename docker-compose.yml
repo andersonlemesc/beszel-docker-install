@@ -15,16 +15,18 @@ services:
       - beszel_socket:/beszel_socket
     networks:
       - app_network
-    labels:
-      com.centurylinklabs.watchtower.enable: "true"
-      # ── Traefik v3 (comentado — usando Nginx) ─────────────
-      # traefik.enable: "true"
-      # traefik.http.routers.beszel.rule: "Host(`beszel.seudominio.com`)"
-      # traefik.http.routers.beszel.entrypoints: "websecure"
-      # traefik.http.routers.beszel.tls.certresolver: "letsencrypt"
-      # traefik.http.services.beszel.loadbalancer.server.port: "8090"
-      # traefik.http.middlewares.beszel-sse.compress: "false"
-      # traefik.http.routers.beszel.middlewares: "beszel-sse"
+    deploy:
+      replicas: 1
+      labels:
+        com.centurylinklabs.watchtower.enable: "true"
+        # ── Traefik v3 (comentado — usando Nginx) ─────────────
+        # traefik.enable: "true"
+        # traefik.http.routers.beszel.rule: "Host(`beszel.seudominio.com`)"
+        # traefik.http.routers.beszel.entrypoints: "websecure"
+        # traefik.http.routers.beszel.tls.certresolver: "letsencrypt"
+        # traefik.http.services.beszel.loadbalancer.server.port: "8090"
+        # traefik.http.middlewares.beszel-sse.compress: "false"
+        # traefik.http.routers.beszel.middlewares: "beszel-sse"
 
   beszel-agent:
     image: henrygd/beszel-agent:latest
