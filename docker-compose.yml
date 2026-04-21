@@ -1,15 +1,17 @@
 services:
+
+  # ------------------------------------------------------------
+  # HUB — Interface web + armazenamento de dados históricos
+  # ------------------------------------------------------------
   beszel:
     image: henrygd/beszel:latest
     container_name: beszel
     restart: unless-stopped
-    ports:
-      - 8090:8090
     environment:
       APP_URL: "https://${DOMINIO}"
-      # ── OAuth2 / SSO (descomente para ativar) ─────────────
-      # USER_CREATION: "true"          # cria usuário automaticamente no primeiro login OAuth
-      # DISABLE_PASSWORD_AUTH: "true"  # desativa login por senha (força somente OAuth)
+      # ── OAuth2 / SSO (descomente para ativar) ──────────────
+      # USER_CREATION: "true"
+      # DISABLE_PASSWORD_AUTH: "true"
     volumes:
       - beszel_data:/beszel_data
       - beszel_socket:/beszel_socket
@@ -18,16 +20,18 @@ services:
     deploy:
       replicas: 1
       labels:
-        com.centurylinklabs.watchtower.enable: "true"
-        # ── Traefik v3 (comentado — usando Nginx) ─────────────
-        # traefik.enable: "true"
-        # traefik.http.routers.beszel.rule: "Host(`beszel.seudominio.com`)"
-        # traefik.http.routers.beszel.entrypoints: "websecure"
-        # traefik.http.routers.beszel.tls.certresolver: "letsencrypt"
-        # traefik.http.services.beszel.loadbalancer.server.port: "8090"
-        # traefik.http.middlewares.beszel-sse.compress: "false"
-        # traefik.http.routers.beszel.middlewares: "beszel-sse"
+        traefik.enable: "true"
+        traefik.http.routers.beszel.rule: "Host(`${DOMINIO}`)"
+        traefik.http.routers.beszel.entrypoints: "websecure"
+        traefik.http.routers.beszel.tls.certresolver: "letsencrypt"
+        traefik.http.services.beszel.loadbalancer.server.port: "8090"
+        # ⚠️ Obrigatório para SSE funcionar — desativa compressão no stream
+        traefik.http.middlewares.beszel-sse.compress.excludedContentTypes: "text/event-stream"
+        traefik.http.routers.beszel.middlewares: "beszel-sse"
 
+  # ------------------------------------------------------------
+  # AGENT LOCAL — Coleta métricas desta máquina via Unix Socket
+  # ------------------------------------------------------------
   beszel-agent:
     image: henrygd/beszel-agent:latest
     container_name: beszel-agent
@@ -36,18 +40,22 @@ services:
       - beszel_agent_data:/var/lib/beszel-agent
       - beszel_socket:/beszel_socket
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+      # Descomente para monitorar serviços systemd
+      # - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
     environment:
       LISTEN: "/beszel_socket/beszel.sock"
       HUB_URL: "http://beszel:8090"
       TOKEN: "${BESZEL_TOKEN}"
       KEY: "${BESZEL_KEY}"
       FILESYSTEM: "sda1"
-      SERVICE_PATTERNS: "*"
+      # Descomente para monitorar serviços systemd (requer volume acima)
+      # SERVICE_PATTERNS: "*"
     networks:
       - traefik_public
     depends_on:
       - beszel
+    deploy:
+      replicas: 1
 
 volumes:
   beszel_data:
