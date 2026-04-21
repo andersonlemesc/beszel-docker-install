@@ -14,7 +14,7 @@ services:
       - beszel_data:/beszel_data
       - beszel_socket:/beszel_socket
     networks:
-      - app_network
+      - traefik_public
     deploy:
       replicas: 1
       labels:
@@ -45,7 +45,7 @@ services:
       FILESYSTEM: "sda1"
       SERVICE_PATTERNS: "*"
     networks:
-      - app_network
+      - traefik_public
     depends_on:
       - beszel
 
@@ -55,6 +55,6 @@ volumes:
   beszel_socket:
 
 networks:
-  app_network:
+  traefik_public:
     external: true
-    name: app_network
+    name: traefik_public
