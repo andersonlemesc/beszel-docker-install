@@ -146,6 +146,49 @@ Suporte a **Traefik v3** está comentado no `docker-compose.yml`, basta descomen
 
 ---
 
+## 🔐 OAuth2 / SSO
+
+O Beszel suporta login via OAuth2 usando o PocketBase internamente.
+
+### Provedores suportados
+
+**Externos:** Apple, Discord, GitHub, Google, GitLab, Microsoft, Twitch, Twitter e outros.
+
+**Self-hosted (OIDC):** Authelia, authentik, Gitea, GitLab, Keycloak, Kanidm, mailcow, Pocket ID, ZITADEL.
+
+---
+
+### Como configurar
+
+1. Acesse a interface admin do PocketBase:
+   ```
+   http://IP_DO_SERVIDOR:8090/_/#/settings
+   ```
+2. **Desative** a opção *"Hide collection create and edit controls"*
+3. Vá em **Collections → users → Options**
+4. Ative **OAuth2** e adicione o provedor desejado
+5. Reative a opção de ocultar controles
+
+**URL de callback** para registrar no seu provedor OAuth:
+```
+https://beszel.seudominio.com/api/oauth2-redirect
+```
+
+---
+
+### Variáveis de ambiente opcionais
+
+Já estão comentadas no `docker-compose.yml`, basta descomentar conforme necessário:
+
+| Variável | Efeito |
+|---|---|
+| `USER_CREATION=true` | Cria o usuário automaticamente no primeiro login OAuth |
+| `DISABLE_PASSWORD_AUTH=true` | Desativa login por senha — força uso exclusivo de OAuth |
+
+> ⚠️ Não altere `DISABLE_PASSWORD_AUTH` diretamente pelo PocketBase, pois o valor será sobrescrito pelo da variável de ambiente a cada reinicialização.
+
+---
+
 ## 📦 Volumes criados
 
 | Volume | Uso |
