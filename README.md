@@ -10,7 +10,7 @@ Este repositório fornece um `docker-compose.yml` pronto para uso com rede exter
 - Docker e Docker Compose instalados
 - Rede externa `app_network` criada:
   ```bash
-  docker network create app_network
+  docker network create traefik_public
   ```
 - Arquivo `.env` configurado (veja abaixo)
 
