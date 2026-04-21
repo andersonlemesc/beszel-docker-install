@@ -7,6 +7,9 @@ services:
       - 8090:8090
     environment:
       APP_URL: "https://${DOMINIO}"
+      # ── OAuth2 / SSO (descomente para ativar) ─────────────
+      # USER_CREATION: "true"          # cria usuário automaticamente no primeiro login OAuth
+      # DISABLE_PASSWORD_AUTH: "true"  # desativa login por senha (força somente OAuth)
     volumes:
       - beszel_data:/beszel_data
       - beszel_socket:/beszel_socket
